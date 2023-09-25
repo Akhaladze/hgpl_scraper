@@ -1,4 +1,3 @@
-
 from flask import Flask, jsonify, config, current_app
 from flask.cli import FlaskGroup, click
 from flask_sqlalchemy import SQLAlchemy
