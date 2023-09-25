@@ -16,20 +16,16 @@ services:
   
   worker:
     build:
-      context: ./project/worker/
+      context: ./
       dockerfile: Dockerfile
     entrypoint: celery
     command: -A tasks worker -l info -E
-    working_dir: /data/worker/
     user: nobody
     volumes:
-      - ./project/:/data/worker
-      - ./requirements.txt:/worker/requirements.txt
-      - ./project:/data/worker
+      - ./project/:/data
     networks:
       scraper_network:
           ipv4_address: 192.168.65.60
-    
     environment:
       - CELERY_BROKER_URL=amqp://scraper:scraper@rabbitmq:5672/scraper_app
       - CELERY_RESULT_BACKEND=redis://redis:6379/0
@@ -65,10 +61,10 @@ services:
       - RABBITMQ_DEFAULT_VHOST=scraper_app
       - RABBITMQ_SERVER_ADDITIONAL_ERL_ARGS=-rabbit log_levels [{connection,error},{default,error}] disk_free_limit 2147483648 -rabbitmq_management listener [{port,15672},{ip,"192.168.65.80"}]
       - COMPOSE_PROJECT_NAME=scraper
-    
     volumes:
-      - rabbitmq_data:/var/lib/rabbitmq/mnesia
-      - ./configs/mq:/etc/rabbitmq
+      - rabbitmq_data:/var/lib/rabbitmq:wr
+      - ./configs/mq/enabled_plugins:/etc/rabbitmq/enabled_plugins
+      - ./configs/mq/rabbitmq.conf:/etc/rabbitmq/rabbitmq.conf
     restart: unless-stopped
     networks:
       scraper_network:
@@ -142,11 +138,11 @@ services:
   # Celery Flower (Tasks monitoring service)
   ###################################################################################################
   flower:
-    build: ./project/flower/
+    build: ./
     command: celery -A tasks flower
     volumes:
-      - ./project/:/flower/
-    working_dir: /flower
+      - ./project:/data
+    working_dir: /data
     networks:
       scraper_network:
         ipv4_address: 192.168.65.140
