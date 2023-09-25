@@ -1,4 +1,4 @@
-from project.connectors.tasks2 import getResult
+from tasks import getResult
 import time
 from time import sleep
 
@@ -27,3 +27,5 @@ while True:
         print(result.result)
         time.sleep(1)
 
+if __name__ == "__main__":
+    app.start()
