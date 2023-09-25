@@ -28,7 +28,6 @@ services:
 ###################################################################################################
 # 6:: Scraper_celery_worker
 ###################################################################################################
-  
   worker:
     build:
       context: ./
@@ -37,8 +36,8 @@ services:
     command: -A tasks worker -l info -E
     user: nobody
     volumes:
-      - project/:/data
-      - worker_data:/data
+      - project:/data
+#- worker_data:/data
     networks:
       scraper_network:
           ipv4_address: 192.168.65.60
@@ -64,7 +63,6 @@ services:
 ##################################################################################################
   rabbitmq:
     image: rabbitmq:3.12.4-management
-    user: "gnet:gnet"
     ports:
       - 15672:15672
       - 5672:5672
@@ -92,8 +90,8 @@ services:
   scraper_db:
     image: postgres:15.4
     volumes: 
-      - ./configs/db/init.sql:/docker-entrypoint-initdb.d/init.sql
-      - ./configs/db/script.sql:/docker-entrypoint-initdb.d/create_tables.sql
+    #  - ./configs/db/init.sql:/docker-entrypoint-initdb.d/init.sql
+    #  - ./configs/db/script.sql:/docker-entrypoint-initdb.d/create_tables.sql
       - scraper_db:/var/lib/postgresql/data
     ports:
       - 5432:5432
@@ -111,7 +109,6 @@ services:
     depends_on:
      Scraper_db:
        condition: service_healthy
-
 ###################################################################################################
 # PG ADMIN
 ###################################################################################################
@@ -173,7 +170,6 @@ services:
       - redis
       - rabbitmq
       - scraper_db
-  
 ##################################################################################################
 #Network########################################################################################
 #Volumes########################################################################################
@@ -194,14 +190,14 @@ networks:
     labels:
       - com.docker.compose.labels=scraper
 volumes:
-  worker_data:
   rabbitmq_data:
   scraper_db:
   pgadmin:
   redis:
-#downloads folder (SDS Storage)
+  worker_data:
+
   downloads:
     external: true
-#project folder (Project Data)
+
   project:
      external: true
