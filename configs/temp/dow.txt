@@ -1,0 +1,33 @@
+
+1. go to https://www.dow.com/en-us/support/sds-finder.html#q=%E2%84%A2&numberOfResults=100
+2. Save DOM element: class="coveo-result-list-container coveo-list-layout-container"
+2.1. Each element:
+-  class="coveo-list-layout CoveoResult"
+-- class="coveo-result-frame"
+--- a class="CoveoResultLink" => get href value
+
+3. GoTo by href 
+example: https://www.dow.com/en-us/pdp.dowsil-795-silicone-building-sealant.01595717z.html?productCatalogFlag=1&#tech-content
+3.1.  extract <ul> (class = "dropdown-menu")
+-- each elements <li> class = "dropdown-item"
+---  
+
+4.
+
+final link: <span> (class="document-card-arrow"), extract span.href
+
+
+
+
+Examples:
+
+https://www.dow.com/en-us/doc-viewer-blank.html?docType=SDS&contentType=SDS&product=01595717z&tradeProduct=000000839473&selectedCountry=UA&selectedLanguage=EN&recordNumber=42244871&useRequestPath=true
+
+
+https://www.dow.com/en-us/doc-viewer-blank.html?docType=SDS&amp;contentType=SDS&amp;product=01059548z&amp;tradeProduct=000000853058&amp;selectedCountry=UA&amp;selectedLanguage=EN&amp;recordNumber=48866283&amp;useRequestPath=true
+
+https://www.dow.com/en-us/doc-viewer-blank.html?docType=SDS&contentType=SDS&product=497114z&tradeProduct=000000497114&selectedCountry=US&selectedLanguage=EN&recordNumber=44527743&useRequestPath=true
+
+
+
+Take a Auth key: https://www.dow.com/en-us/search.html#t=Products&sort=relevancy&f:@dow_producttechnology_hierarchy=[Silicones%2C%20Silicone-Organic%20Hybrids%20and%20Silanes]

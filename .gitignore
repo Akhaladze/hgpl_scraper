@@ -1,0 +1,9 @@
+/project/downloads/
+*.pdf
+/project/__pycache__/
+/venv/
+/.vscode/
+scraper.code-workspace
+.vscode/settings.json
+/doc/BurpSuite/
+
