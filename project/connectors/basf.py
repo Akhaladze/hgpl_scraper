@@ -6,7 +6,7 @@ from sqlalchemy import Column, Integer, String, Boolean, DateTime, ForeignKey, T
 from sqlalchemy.exc import DatabaseError
 import sys, requests, os
 
-sys.path.append('/home/gnet/dev/scrapper_dev/project/')
+sys.path.append('~/dev/hglp_scraper/project/connectors/')
 path = str(os.getenv("APP_PATH")) + str("downloads/basf/")
 
 import models as models

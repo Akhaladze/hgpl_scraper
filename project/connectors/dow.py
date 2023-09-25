@@ -5,7 +5,7 @@ from sqlalchemy.dialects.postgresql import JSONB, ARRAY, UUID, TIMESTAMP
 from sqlalchemy import Column, Integer, String, Boolean, DateTime, ForeignKey
 import sys, requests, time, json, os
 
-sys.path.append('/home/gnet/dev/scrapper_dev/project/')
+sys.path.append('~/dev/hgpl_scraper/project/')
 import models as models
 from models import db, DowList, Connectors, MainSDSstore, BasfList
 
@@ -15,12 +15,12 @@ models.db.init_app(app)
 app.app_context().push()
 cli = FlaskGroup(app) # type: ignore
 # Path: project/dow.py
-path = '/home/gnet/dev/scrapper_dev/project/downloads/dow/'
+path = '~/dev/hgpl_scraper/project/downloads/dow/'
 session = requests.Session()
 
 proxies = {
-   'http': 'http://146.0.80.152:8080'
-   #'https': 'http://secureproxy.example.com:8090',
+   'http': 'http://146.0.80.152:8080',
+   'http': 'http://146.0.80.189:8080'
 }
 
 

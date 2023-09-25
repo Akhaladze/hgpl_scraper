@@ -15,19 +15,21 @@ services:
   ###################################################################################################
   
   worker:
-    build: ./project/flower/
+    build:
+      context: ./project/worker/
+      dockerfile: Dockerfile
     entrypoint: celery
     command: -A tasks worker -l info -E
-    working_dir: /data/flower
+    working_dir: /data/worker/
     user: nobody
     volumes:
-      #- ./project/:/data
-      #- ./requirements.txt:/data/requirements.txt
-      - ./project:/data
-      - ./project/flower:/data/flower
+      - ./project/:/data/worker
+      - ./requirements.txt:/worker/requirements.txt
+      - ./project:/data/worker
     networks:
       scraper_network:
           ipv4_address: 192.168.65.60
+    
     environment:
       - CELERY_BROKER_URL=amqp://scraper:scraper@rabbitmq:5672/scraper_app
       - CELERY_RESULT_BACKEND=redis://redis:6379/0
@@ -143,8 +145,8 @@ services:
     build: ./project/flower/
     command: celery -A tasks flower
     volumes:
-      - ./project:/data
-    working_dir: /data
+      - ./project/:/flower/
+    working_dir: /flower
     networks:
       scraper_network:
         ipv4_address: 192.168.65.140
