@@ -106,8 +106,16 @@ services:
         ipv4_address: 192.168.65.90
     environment:
       - COMPOSE_PROJECT_NAME=scraper
+      - POSTGRES_HOST=scraper_db
+      - POSTGRES_PORT=5432
+      - POSTGRES_DB=scraper_db
+      - POSTGRES_USER=scraper_db
+      - POSTGRES_PASSWORD=scraper_db
+      - POSTGRES_HOST_AUTH_METHOD=trust
+      - POSTGRES_SHARED_PRELOAD_LIBRARIES=pgaudit, pg_stat_statements
+      - TIMEZONE=Europe/Berlin
     depends_on:
-     Scraper_db:
+     scraper_db:
        condition: service_healthy
 ###################################################################################################
 # PG ADMIN
@@ -126,7 +134,9 @@ services:
     hostname: scraper_pgadmin
     environment:
       - COMPOSE_PROJECT_NAME=scraper
-
+      - PGADMIN_DEFAULT_EMAIL=4468618@gmail.com
+      - PGADMIN_DEFAULT_PASSWORD=Frdfkfyu2017!
+      - PGADMIN_LISTEN_PORT=80
 ###################################################################################################
 #  REDIS
 # ##################################################################################################
@@ -195,9 +205,7 @@ volumes:
   pgadmin:
   redis:
   worker_data:
-
   downloads:
     external: true
-
   project:
-     external: true
+    external: true
