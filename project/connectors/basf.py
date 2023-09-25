@@ -1,4 +1,3 @@
-
 from flask import Flask, jsonify, config, current_app
 from flask.cli import FlaskGroup, click
 from flask_sqlalchemy import SQLAlchemy
@@ -7,7 +6,7 @@ from sqlalchemy import Column, Integer, String, Boolean, DateTime, ForeignKey, T
 from sqlalchemy.exc import DatabaseError
 import sys, requests, os
 
-sys.path.append('/home/gnet/dev/scrapper_dev/project/')
+sys.path.append('~/dev/hglp_scraper/project/connectors/')
 path = str(os.getenv("APP_PATH")) + str("downloads/basf/")
 
 import models as models

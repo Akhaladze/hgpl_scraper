@@ -6,4 +6,4 @@
 scraper.code-workspace
 .vscode/settings.json
 /doc/BurpSuite/
-
+*.pdf
