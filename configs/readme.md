@@ -13,3 +13,4 @@
 
 
 #   - `configs/readme.md` is this file
+#  - add celery config
