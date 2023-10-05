@@ -10,7 +10,7 @@ jobs:
 
   build:
 
-    runs-on: [self-hosted, gnet-nuc]
+    runs-on: [self-hosted, gnet-nuc, gnet01, ao)]
 
     steps:
     - uses: actions/checkout@v3
