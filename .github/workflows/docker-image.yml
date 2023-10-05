@@ -16,6 +16,6 @@ jobs:
     - uses: actions/checkout@v3
     - name: Build the Docker image
       run: docker build . --file Dockerfile --tag scraper-worker:$(date +%s)
-    - name: Download a Build Artifact
-    - uses: actions/download-artifact@v2.1.1
+      
+      
     
