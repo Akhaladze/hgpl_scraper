@@ -1,109 +1,41 @@
 version: '3.8'
 services:
-#HGPL SDS Scraper
-# 1.1:: Scraper INIT:: - Scraper Application
-# 1.2:: Scraper Connectors:: Scraper Application
-###################################################################################################
-#  scraper:
-#    build: project
-#    entrypoint: python
-#    command: -m app
-#    user: nobody
-#    volumes:
-#     - .:/data/project
-#      - downloads:/data/downloads
-#    networks:
-#      scraper_network:
-#    environment:
-#      - PYTHONPATH=/data
-#      - COMPOSE_PROJECT_NAME=scraper
-#    env_file:
-#      - project/.env
-#    depends_on:
-#      - rabbitmq
-#      - redis
-#      - scraper_db
-#      - worker
-#    restart: unless-stopped
-###################################################################################################
-# 6:: Scraper_celery_worker
-###################################################################################################
-  worker:
-    build:
-      context: ./
-      dockerfile: Dockerfile
-    entrypoint: celery
-    command: -A tasks worker -l info -E
-    user: nobody
-    volumes:
-      - project:/data
-#- worker_data:/data
-    networks:
-      scraper_network:
-          ipv4_address: 192.168.65.60
-    environment:
-      - CELERY_BROKER_URL=amqp://scraper:scraper@rabbitmq:5672/scraper_app
-      - CELERY_RESULT_BACKEND=redis://redis:6379/0
-      - PYTHONPATH=/data
-      - COMPOSE_PROJECT_NAME=scraper
-    depends_on:
-      - rabbitmq
-      - redis
-      - scraper_db
-#Scraper Infrastructure Services###############################################################
-#  1. RabbitMQ
-#  2. Postgres DB (HC)
-#  3. Persistent Storage (!NOT ADDED YET!)
-#  4. PgAdmin
-#  5. Redis
-#  6. Networks
-###################################################################################################
-##################################################################################################
-# DB:: Scraper_DB
-##################################################################################################
+
   rabbitmq:
     image: rabbitmq:3.12.4-management
     ports:
       - 15672:15672
       - 5672:5672
       - 1883:1883
-    container_name: rabbitmq
     environment:
       - RABBITMQ_DEFAULT_USER=scraper
       - RABBITMQ_DEFAULT_PASS=scraper
       - RABBITMQ_DEFAULT_VHOST=scraper_app
-      - RABBITMQ_SERVER_ADDITIONAL_ERL_ARGS=-rabbit log_levels [{connection,error},{default,error}] disk_free_limit 2147483648 -rabbitmq_management listener [{port,15672},{ip,"192.168.65.80"}]
+      - RABBITMQ_SERVER_ADDITIONAL_ERL_ARGS=-rabbit log_levels [{connection,error},{default,error}] disk_free_limit 2147483648 -rabbitmq_management listener [{port,15672},{ip,"0.0.0.0"}]
       - COMPOSE_PROJECT_NAME=scraper
     volumes:
       - rabbitmq_data:/var/lib/rabbitmq:wr
       - rabbitmq_data:/etc/rabbitmq:rw
-#- ./configs/mq/enabled_plugins:/etc/rabbitmq/enabled_plugins
-#- ./configs/mq/rabbitmq.conf:/etc/rabbitmq/rabbitmq.conf
+      - ./configs/mq/enabled_plugins:/etc/rabbitmq/enabled_plugins
+      - ./configs/mq/rabbitmq.conf:/etc/rabbitmq/rabbitmq.conf
     restart: unless-stopped
-    networks:
-      scraper_network:
-          ipv4_address: 192.168.65.80
     hostname: rabbitmq
-##################################################################################################
-#  DB:: Scraper_DB
-##################################################################################################
+    container_name: rabbitmq
+    networks:
+      scraper:
+
+
   scraper_db:
     image: postgres:15.4
     volumes: 
-    #  - ./configs/db/init.sql:/docker-entrypoint-initdb.d/init.sql
-    #  - ./configs/db/script.sql:/docker-entrypoint-initdb.d/create_tables.sql
+      - ./configs/db/init.sql:/docker-entrypoint-initdb.d/init.sql
+      - ./configs/db/script.sql:/docker-entrypoint-initdb.d/create_tables.sql
       - scraper_db:/var/lib/postgresql/data
-    ports:
-      - 5432:5432
-    container_name: scraper_db
     hostname: scraper_db
-# env_file:
-#- ./configs/.env_db
-# shm_size: 8gb
+    container_name: scraper_db
+
+    shm_size: 8gb
     restart: unless-stopped
-    networks:
-      scraper_network:
-        ipv4_address: 192.168.65.90
     environment:
       - COMPOSE_PROJECT_NAME=scraper
       - POSTGRES_HOST=scraper_db
@@ -114,89 +46,45 @@ services:
       - POSTGRES_HOST_AUTH_METHOD=trust
       - POSTGRES_SHARED_PRELOAD_LIBRARIES=pgaudit, pg_stat_statements
       - TIMEZONE=Europe/Berlin
-###################################################################################################
-# PG ADMIN
-###################################################################################################
+    networks:
+      scraper:
+
   pgadmin:
     image: dpage/pgadmin4:latest
-#env_file: ./configs/.env_pgadmin
+    env_file: ./configs/.env_pgadmin
     restart: unless-stopped
     volumes:
       - pgadmin:/var/lib/pgadmin
-    networks:
-      scraper_network:
-        ipv4_address: 192.168.65.110
-    ports:
-      - 80:80
-    hostname: scraper_pgadmin
+    hostname: pgadmin
+    container_name: pgadmin
     environment:
       - COMPOSE_PROJECT_NAME=scraper
       - PGADMIN_DEFAULT_EMAIL=4468618@gmail.com
       - PGADMIN_DEFAULT_PASSWORD=Frdfkfyu2017!
       - PGADMIN_LISTEN_PORT=80
-###################################################################################################
-#  REDIS
-###################################################################################################
+    networks:
+      scraper:
+
   redis:
     image: redis:latest
     hostname: redis
     container_name: redis
     ports:
       - 6379:6379
-#env_file: ./configs/.env_redis
-    networks:
-      scraper_network:
-        ipv4_address: 192.168.65.130
+    env_file: ./configs/.env_redis
     restart: unless-stopped
     environment:
       - COMPOSE_PROJECT_NAME=scraper
     volumes:
       - redis:/data
-###################################################################################################
-# Celery Flower (Tasks monitoring service)
-###################################################################################################
-  flower:
-    build: ./
-    command: celery -A tasks flower
-    volumes:
-      - project:/data prepare image
-      - project:/data
-    working_dir: /data
     networks:
-      scraper_network:
-        ipv4_address: 192.168.65.140
-    ports:
-      - 5555:5555
-    environment:
-      - CELERY_BROKER_URL=amqp://scraper:scraper@rabbitmq/scraper_app
-      - CELERY_RESULT_BACKEND=redis://redis/0
-      - FLOWER_UNAUTHENTICATED_API=true
-      - COMPOSE_PROJECT_NAME=scraper
-    depends_on:
-      - worker
-      - redis
-      - rabbitmq
-networks: 
-  scraper_network:
-    driver: bridge
-    ipam: 
-      config:
-        - subnet: 192.168.65.0/24
-          ip_range: 192.168.65.0/24
-          gateway: 192.168.65.1
-    external: true
-    attachable: true
-    internal: false
-    name: scraper_network
-    labels:
-      - com.docker.compose.labels=scraper
+      scraper:
+
 volumes:
   rabbitmq_data:
   scraper_db:
   pgadmin:
   redis:
-  worker_data:
-  downloads:
-    external: true
-  project:
+networks:
+  scraper:
     external: true

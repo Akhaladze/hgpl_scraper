@@ -1,0 +1,68 @@
+version: '3.8'
+services:
+  
+#Celery Flower (Tasks monitoring service)
+  flower:
+    build:
+      context: ./
+      dockerfile: Dockerfile
+    image: worker:latest
+    entrypoint: celery
+    command: -A tasks flower
+    volumes:
+      - /opt/hgpl_scraper/project:/project
+      - worker:/project
+      - downloads:/project/downloads
+    working_dir: /project
+    networks:
+      - scraper
+    #ports: 
+      #- 5555:5555
+    hostname: worker1
+    container_name: worker1
+    environment:
+      #- CELERY_BROKER_URL=amqp://scraper:scraper@172.50.50.140/scraper_app
+      #- CELERY_RESULT_BACKEND=redis://172.50.50.130/0
+      - CELERY_BROKER_URL=amqp://scraper:scraper@146.0.80.189/scraper_app
+      - CELERY_RESULT_BACKEND=redis://146.0.80.189/0
+      - FLOWER_UNAUTHENTICATED_API=true
+      - COMPOSE_PROJECT_NAME=scraper
+
+#Celery Flower (Tasks monitoring service)
+  worker1:
+    build:
+      context: ./
+      dockerfile: Dockerfile
+    image: worker:latest
+    entrypoint: celery
+    #command: rsync -avzh root@146.0.80.152:/data/scraper /home/gnet/dev
+    command: -A tasks worker -n worker2@hc-hgpl.helacloud.com --autoscale=4,0 -Q slow.pool1 -l info -E 
+    #command: celery -A tasks worker -n worker01@146.0.80.152 --autoscale=10,0 -Q celery,single,multi -l info -E
+    volumes:
+      - /opt/hgpl_scraper/project:/project
+      - worker:/project
+      - downloads:/project/downloads
+    working_dir: /project
+    networks:
+      - scraper
+    #ports:
+      #- 5555:5555
+    hostname: worker2
+    container_name: worker200
+    environment:
+      #- CELERY_BROKER_URL=amqp://scraper:scraper@172.50.50.140/scraper_app
+      #- CELERY_RESULT_BACKEND=redis://172.50.50.130/0
+      - CELERY_BROKER_URL=amqp://scraper:scraper@146.0.80.189/scraper_app
+      - CELERY_RESULT_BACKEND=redis://146.0.80.189/0
+      - FLOWER_UNAUTHENTICATED_API=true
+      - COMPOSE_PROJECT_NAME=scraper
+networks:
+  scraper:
+    
+  
+volumes:
+  worker:
+    external: true
+  downloads:
+    external: true
+      
