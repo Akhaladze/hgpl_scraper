@@ -3,16 +3,16 @@ services:
   
 #Celery Flower (Tasks monitoring service)
   flower:
-    build:
+    build: 
       context: ./
       dockerfile: Dockerfile
     image: worker:latest
     entrypoint: celery
     command: -A tasks flower
     volumes:
-      - /opt/hgpl_scraper/project:/project
-      - worker:/project
-      - downloads:/project/downloads
+      - /opt/hgpl_scraper/project:/project/
+     # - worker:/project
+     # - downloads:/project/downloads
     working_dir: /project
     networks:
       - scraper
@@ -39,9 +39,9 @@ services:
     command: -A tasks worker -n worker2@hc-hgpl.helacloud.com --autoscale=4,0 -Q slow.pool1 -l info -E 
     #command: celery -A tasks worker -n worker01@146.0.80.152 --autoscale=10,0 -Q celery,single,multi -l info -E
     volumes:
-      - /opt/hgpl_scraper/project:/project
-      - worker:/project
-      - downloads:/project/downloads
+      - /opt/hgpl_scraper/project:/project/
+      #- worker:/project
+      #- downloads:/project/downloads
     working_dir: /project
     networks:
       - scraper
@@ -58,6 +58,7 @@ services:
       - COMPOSE_PROJECT_NAME=scraper
 networks:
   scraper:
+
     
   
 volumes:
